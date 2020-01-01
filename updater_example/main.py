@@ -30,11 +30,9 @@ class MainWindow(QMainWindow):
 
     def openAutoUpdater(self):
         folder = self.findAutoUpdaterLocation()
-        if sys.platform.startswith('win'):
-            process = subprocess.run([os.path.join(folder, 'AutoUpdater.exe')])
-        else:
-            process = subprocess.run([os.path.join(folder, 'AutoUpdater')])
+        script = os.path.join(folder, 'AutoUpdater.exe' if sys.platform.startswith('win') else 'AutoUpdater')
         try:
+            process = subprocess.run([script])
             process.check_returncode()
 
             # Restart app
