@@ -22,7 +22,8 @@ class MainWindow(QMainWindow):
         (all_before_last_dir, last_dir) = os.path.split(all_last_dir)
         (all_before_before_last_dir, before_last_dir) = os.path.split(all_before_last_dir)
         if last_dir == 'MacOS' and before_last_dir == 'Contents':
-            folder = all_before_before_last_dir
+            # For MacOS, the updater app should be located in Resources folder
+            folder = os.path.join(all_before_last_dir, "Resources")
         else:
             folder = all_last_dir
         return folder
