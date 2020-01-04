@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
 
         # Automatic check for update when we start the main application
         # You can do this in background every specified period of time
+        print("Starting to check the update status in background...")
         if self.checkForUpdate():
             self.openAutoUpdater()
 
