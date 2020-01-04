@@ -1,3 +1,21 @@
+#  This file is part of Boatswain.
+#
+#      Boatswain <https://github.com/theboatswain> is free software: you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation, either version 3 of the License, or
+#      (at your option) any later version.
+#
+#      Boatswain is distributed in the hope that it will be useful,
+#      but WITHOUT ANY WARRANTY; without even the implied warranty of
+#      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#      GNU General Public License for more details.
+#
+#      You should have received a copy of the GNU General Public License
+#      along with Boatswain.  If not, see <https://www.gnu.org/licenses/>.
+#
+#
+
+import json
 import os
 import subprocess
 import sys
@@ -12,6 +30,13 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(central_widget)
         self.check = QPushButton(central_widget)
         self.check.setText("Check for update")
+
+        # Automatic check for update when we start the main application
+        # You can do this in background every specified period of time
+        if self.checkForUpdate():
+            self.openAutoUpdater()
+
+        # Or we can have a button for user to click check-for-update
         self.check.clicked.connect(self.openAutoUpdater)
         main_layout.addWidget(self.check)
         self.setCentralWidget(central_widget)
@@ -26,11 +51,21 @@ class MainWindow(QMainWindow):
             folder = os.path.join(all_before_last_dir, "Resources")
         else:
             folder = all_last_dir
-        return folder
+        script = os.path.join(folder, 'AutoUpdater.exe' if sys.platform.startswith('win') else 'AutoUpdater')
+        return script
+
+    def checkForUpdate(self):
+        script = self.findAutoUpdaterLocation()
+        try:
+            process = subprocess.run([script, '--checking-mode=True'], stdout=subprocess.PIPE)
+            res = process.stdout.decode('utf-8')
+            update = json.loads(res)
+            return update['has_release']
+        except subprocess.CalledProcessError as e:
+            print('Exception occurred, e: ', e)
 
     def openAutoUpdater(self):
-        folder = self.findAutoUpdaterLocation()
-        script = os.path.join(folder, 'AutoUpdater.exe' if sys.platform.startswith('win') else 'AutoUpdater')
+        script = self.findAutoUpdaterLocation()
         try:
             process = subprocess.run([script])
             process.check_returncode()
